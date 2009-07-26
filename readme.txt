@@ -3,7 +3,7 @@ Contributors: sillybean
 Tags: widgets, excerpts
 Requires at least: 2.8
 Tested up to: 2.82
-Stable tag: 1.0
+Stable tag: 1.1
 
 
 A widget that lists your most recent posts with optional excerpts.   
@@ -20,6 +20,14 @@ A widget that lists your most recent posts with excerpts. The number of posts an
 Go to Appearance &rarr; Widgets to add widgets to your sidebar in widget-ready themes.
 
 Tip: to style your excerpts, add a declaration for `.recent_with_excerpt li blockquote` to your theme's stylesheet.
+
+== Changelog ==
+
+= 1.1 =
+* Added category option (July 26, 2009)
+= 1.0 =
+* First release (July 24, 2009)
+
 
 == Screenshots ==
 

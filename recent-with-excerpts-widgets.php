@@ -3,11 +3,13 @@
 Plugin Name: Recent Posts with Excerpts
 Plugin URI: http://sillybean.net/code/wordpress/recent-posts-with-excerpts/
 Description: A widget that lists your most recent posts with excerpts. The number of posts and excerpts is configurable; for example, you could show five posts but include the excerpt for only the most recent. Supports <a href="http://robsnotebook.com/the-excerpt-reloaded/">The Excerpt Reloaded</a> and <a href="http://sparepencil.com/code/advanced-excerpt/">Advanced Excerpt</a>.
-Version: 1.0
+Version: 1.1
 Author: Stephanie Leary
 Author URI: http://sillybean.net/
 
 Changelog:
+1.1 (July 26, 2009)
+	Added category option
 1.0 (July 24, 2009)
 	First release
 
@@ -53,7 +55,9 @@ class RecentPostsWithExcerpts extends WP_Widget {
 			<ul>
 			<?php 
 			// retrieve last five blog posts
-			query_posts('showposts='.$instance['numposts']);
+			$q = 'showposts='.$instance['numposts'];
+			if (!empty($instance['cat'])) $q .= '&cat='.$instance['cat'];
+			query_posts($q);
 			$excerpts = $instance['numexcerpts'];
 				  
 			// the Loop
@@ -86,6 +90,7 @@ class RecentPostsWithExcerpts extends WP_Widget {
 			$instance['more_text'] = strip_tags($new_instance['more_text']);
 			$instance['words'] = strip_tags($new_instance['words']);
 			$instance['tags'] = $new_instance['tags'];
+			$instance['cat'] = $new_instance['cat'];
 
 			return $instance;
 	}
@@ -98,10 +103,8 @@ class RecentPostsWithExcerpts extends WP_Widget {
 						'numexcerpts' => 5,
 						'more_text' => 'more...',
 						'words' => '55',
-						'tags' => '<p><div><span><br><img><a><ul><ol><li><blockquote><cite><em><i><strong><b><h2><h3><h4><h5><h6>') );
-				$title = esc_attr( $instance['title'] );		
-				$more = esc_attr( $instance['more_text'] );
-	
+						'tags' => '<p><div><span><br><img><a><ul><ol><li><blockquote><cite><em><i><strong><b><h2><h3><h4><h5><h6>',
+						'cat' => 0));	
 	?>  
        
 			<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label> 
@@ -120,6 +123,8 @@ class RecentPostsWithExcerpts extends WP_Widget {
                 <input class="widefat" id="<?php echo $this->get_field_id('more_text'); ?>" name="<?php echo $this->get_field_name('more_text'); ?>" type="text" value="<?php echo $instance['more_text']; ?>" />
                 <br /><small>Leave blank to omit 'more' link</small>
 			</p>
+            <p><label for="<?php echo $this->get_field_id('cat'); ?>"><?php _e("Limit to category: "); ?>
+    		<?php wp_dropdown_categories(array('name' => $this->get_field_name('cat'), 'show_option_all' => __('None (all categories)'), 'hide_empty'=>0, 'hierarchical'=>1, 'selected'=>$instance['cat'])); ?></label></p>
 			<?php
 			if (function_exists('the_excerpt_reloaded')) { ?>
 				<p>
