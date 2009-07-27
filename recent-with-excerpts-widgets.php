@@ -3,11 +3,13 @@
 Plugin Name: Recent Posts with Excerpts
 Plugin URI: http://sillybean.net/code/wordpress/recent-posts-with-excerpts/
 Description: A widget that lists your most recent posts with excerpts. The number of posts and excerpts is configurable; for example, you could show five posts but include the excerpt for only the most recent. Supports <a href="http://robsnotebook.com/the-excerpt-reloaded/">The Excerpt Reloaded</a> and <a href="http://sparepencil.com/code/advanced-excerpt/">Advanced Excerpt</a>.
-Version: 1.1
+Version: 1.11
 Author: Stephanie Leary
 Author URI: http://sillybean.net/
 
 Changelog:
+1.11 (July 26, 2009)
+	bugfix ("more" text was not set correctly)
 1.1 (July 26, 2009)
 	Added category option
 1.0 (July 24, 2009)
@@ -64,13 +66,13 @@ class RecentPostsWithExcerpts extends WP_Widget {
 			while (have_posts()) : the_post(); ?>
                 <li><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
                 <?php
-                if (!empty($excerpts)) { // show the excerpt ?>
+                if ($excerpts > 0) { // show the excerpt ?>
                     <blockquote> <?php 
                     // the excerpt of the post
                     if (function_exists('the_excerpt_reloaded')) 
                         the_excerpt_reloaded($instance['words'], $instance['tags'], 'content', FALSE, '', '', '1', '');
                     else the_excerpt();  // this covers Advanced Excerpt as well as the built-in one
-                    ?><p align="right"><small><a href="<?php the_permalink(); ?>">more...</a></small></p>
+                    if (!empty($instance['more_text'])) { ?><p class="alignright"><small><a href="<?php the_permalink(); ?>"><?php echo $instance['more_text']; } ?></a></small></p>
                     </blockquote> <?php
                     $excerpts--;
                 }
