@@ -8,6 +8,8 @@ Author: Stephanie Leary
 Author URI: http://sillybean.net/
 
 Changelog:
+1.11 (July 26, 2009)
+	bugfix ("more" text was not set correctly)
 1.1 (July 26, 2009)
 	Added category option
 1.0 (July 24, 2009)
@@ -70,7 +72,7 @@ class RecentPostsWithExcerpts extends WP_Widget {
                     if (function_exists('the_excerpt_reloaded')) 
                         the_excerpt_reloaded($instance['words'], $instance['tags'], 'content', FALSE, '', '', '1', '');
                     else the_excerpt();  // this covers Advanced Excerpt as well as the built-in one
-                    ?><p align="right"><small><a href="<?php the_permalink(); ?>">more...</a></small></p>
+                    ?><p class="alignright"><small><a href="<?php the_permalink(); ?>"><?php echo $instance['more_text']; ?></a></small></p>
                     </blockquote> <?php
                     $excerpts--;
                 }
