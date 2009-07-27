@@ -10,7 +10,7 @@ A widget that lists your most recent posts with optional excerpts.
 
 == Description ==
 
-A widget that lists your most recent posts with excerpts, optionally limited to a category. The number of posts and excerpts is configurable; for example, you could show the titles of five posts but include the excerpt for only the two most recent. Supports <a href="http://robsnotebook.com/the-excerpt-reloaded/">The Excerpt Reloaded</a> and <a href="http://sparepencil.com/code/advanced-excerpt/">Advanced Excerpt</a>.
+A widget that lists your most recent posts with excerpts, optionally limited to a category. The number of posts and excerpts is configurable; for example, you could show the titles of five posts but include the excerpt for only the two most recent. Supports <a href="http://robsnotebook.com/the-excerpt-reloaded/">The Excerpt Reloaded</a> and <a href="http://sparepencil.com/code/advanced-excerpt/">Advanced Excerpt</a> for excerpts with HTML formatting.
 
 == Installation ==
 
