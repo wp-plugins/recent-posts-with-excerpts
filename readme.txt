@@ -2,7 +2,7 @@
 Contributors: sillybean
 Tags: widgets, excerpts
 Requires at least: 2.8
-Tested up to: 2.82
+Tested up to: 2.8.2
 Stable tag: 1.1
 
 
