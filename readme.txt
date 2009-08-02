@@ -3,7 +3,7 @@ Contributors: sillybean
 Tags: widgets, excerpts
 Requires at least: 2.8
 Tested up to: 2.8.2
-Stable tag: 1.1
+Stable tag: 1.11
 
 
 A widget that lists your most recent posts with optional excerpts.   
