@@ -81,6 +81,7 @@ class RecentPostsWithExcerpts extends WP_Widget {
 			</ul>
 			<?php
 			echo $after_widget;
+			wp_reset_query();
 	}
 	
 	
