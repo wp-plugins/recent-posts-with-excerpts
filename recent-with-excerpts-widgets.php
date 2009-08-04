@@ -3,13 +3,15 @@
 Plugin Name: Recent Posts with Excerpts
 Plugin URI: http://sillybean.net/code/wordpress/recent-posts-with-excerpts/
 Description: A widget that lists your most recent posts with excerpts. The number of posts and excerpts is configurable; for example, you could show five posts but include the excerpt for only the most recent. Supports <a href="http://robsnotebook.com/the-excerpt-reloaded/">The Excerpt Reloaded</a> and <a href="http://sparepencil.com/code/advanced-excerpt/">Advanced Excerpt</a>.
-Version: 1.12
+Version: 1.2
 Author: Stephanie Leary
 Author URI: http://sillybean.net/
 
 Changelog:
+= 1.2 =
+* Added widget title option (August 3, 2009)
 = 1.12 =
-bugfix -- needed to reset the Loop after the widget runs
+* bugfix -- needed to reset the Loop after the widget runs (August 2, 2009)
 = 1.11 =
 * bugfix -- 'more' text did not change according to settings (July 26, 2009)
 = 1.1 =
@@ -50,7 +52,10 @@ class RecentPostsWithExcerpts extends WP_Widget {
 			echo $before_widget;
 			if ( $title) {
 				if (!empty($instance['postlink']))  {
-					$before_title .= '<a href="'.get_permalink($instance['post_ID']).'">';
+					if (get_option('show_on_front') == 'page')
+						$link = get_permalink(get_option('page_for_posts'));
+					else $link = get_permalink(get_option('home'));
+					$before_title .= '<a href="'.$link.'">';
 					$after_title .= '</a>';
 				}
 				echo $before_title.$title.$after_title;
@@ -96,11 +101,15 @@ class RecentPostsWithExcerpts extends WP_Widget {
 			$instance['words'] = strip_tags($new_instance['words']);
 			$instance['tags'] = $new_instance['tags'];
 			$instance['cat'] = $new_instance['cat'];
+			$instance['postlink'] = $new_instance['postlink'];
 
 			return $instance;
 	}
 
 	function form( $instance ) {
+		if (get_option('show_on_front') == 'page')
+				$link = get_permalink(get_option('page_for_posts'));
+			else $link = get_permalink(get_option('home'));
 			//Defaults
 				$instance = wp_parse_args( (array) $instance, array( 
 						'title' => 'Recent Posts',
@@ -109,13 +118,18 @@ class RecentPostsWithExcerpts extends WP_Widget {
 						'more_text' => 'more...',
 						'words' => '55',
 						'tags' => '<p><div><span><br><img><a><ul><ol><li><blockquote><cite><em><i><strong><b><h2><h3><h4><h5><h6>',
-						'cat' => 0));	
+						'cat' => 0,
+						'postlink' => $link));	
 	?>  
        
 			<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label> 
 				<input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $instance['title']; ?>" /></p>
 			
 			<p>
+            <p>
+					<label for="<?php echo $this->get_field_id('postlink'); ?>">Link widget title to blog home page?</label>
+					<input class="widefat" id="<?php echo $this->get_field_id('postlink'); ?>" name="<?php echo $this->get_field_name('postlink'); ?>" type="checkbox" <?php if ($instance['postlink']) { ?> checked="checked" <?php } ?> />
+			</p>
             <p><label for="<?php echo $this->get_field_id('numposts'); ?>"><?php _e('Number of posts to show:'); ?></label> 
 				<input class="widefat" id="<?php echo $this->get_field_id('numposts'); ?>" name="<?php echo $this->get_field_name('numposts'); ?>" type="text" value="<?php echo $instance['numposts']; ?>" /></p>
 			
