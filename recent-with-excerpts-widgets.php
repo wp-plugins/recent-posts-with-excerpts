@@ -3,12 +3,17 @@
 Plugin Name: Recent Posts with Excerpts
 Plugin URI: http://sillybean.net/code/wordpress/recent-posts-with-excerpts/
 Description: A widget that lists your most recent posts with excerpts. The number of posts and excerpts is configurable; for example, you could show five posts but include the excerpt for only the most recent. Supports <a href="http://robsnotebook.com/the-excerpt-reloaded/">The Excerpt Reloaded</a> and <a href="http://sparepencil.com/code/advanced-excerpt/">Advanced Excerpt</a>.
-Version: 2.0
+Version: 2.2
 Author: Stephanie Leary
 Author URI: http://sillybean.net/
 
 == Changelog ==
 
+= 2.2 =
+* Fixed HTML validation error. (Thanks, Cris!) (August 5, 20)
+= 2.1 =
+* Added tag limit option
+* All widget input fields are now localized (September 11, 2009)
 = 2.0 =
 * Added widget title option
 * had to jump version numbers (did the earlier ones wrong, apparently) (August 3, 2009)
@@ -65,9 +70,10 @@ class RecentPostsWithExcerpts extends WP_Widget {
 			?>
 			<ul>
 			<?php 
-			// retrieve last five blog posts
+			// retrieve last n blog posts
 			$q = 'showposts='.$instance['numposts'];
 			if (!empty($instance['cat'])) $q .= '&cat='.$instance['cat'];
+			if (!empty($instance['tag'])) $q .= '&tag='.$instance['tag'];
 			query_posts($q);
 			$excerpts = $instance['numexcerpts'];
 				  
@@ -84,9 +90,8 @@ class RecentPostsWithExcerpts extends WP_Widget {
                     if (!empty($instance['more_text'])) { ?><p class="alignright"><small><a href="<?php the_permalink(); ?>"><?php echo $instance['more_text']; } ?></a></small></p>
                     </blockquote> <?php
                     $excerpts--;
-                }
-			endwhile;
-			?>
+		        }?></li>
+			<?php endwhile; ?>
 			</ul>
 			<?php
 			echo $after_widget;
@@ -103,8 +108,8 @@ class RecentPostsWithExcerpts extends WP_Widget {
 			$instance['words'] = strip_tags($new_instance['words']);
 			$instance['tags'] = $new_instance['tags'];
 			$instance['cat'] = $new_instance['cat'];
+			$instance['tag'] = $new_instance['tag'];
 			$instance['postlink'] = $new_instance['postlink'];
-
 			return $instance;
 	}
 
@@ -121,42 +126,48 @@ class RecentPostsWithExcerpts extends WP_Widget {
 						'words' => '55',
 						'tags' => '<p><div><span><br><img><a><ul><ol><li><blockquote><cite><em><i><strong><b><h2><h3><h4><h5><h6>',
 						'cat' => 0,
+						'tag' => '',
 						'postlink' => $link));	
 	?>  
        
-			<p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label> 
-				<input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $instance['title']; ?>" /></p>
-			
-			<p>
-            <p>
-					<label for="<?php echo $this->get_field_id('postlink'); ?>">Link widget title to blog home page?</label>
-					<input class="widefat" id="<?php echo $this->get_field_id('postlink'); ?>" name="<?php echo $this->get_field_name('postlink'); ?>" type="checkbox" <?php if ($instance['postlink']) { ?> checked="checked" <?php } ?> />
-			</p>
-            <p><label for="<?php echo $this->get_field_id('numposts'); ?>"><?php _e('Number of posts to show:'); ?></label> 
-				<input class="widefat" id="<?php echo $this->get_field_id('numposts'); ?>" name="<?php echo $this->get_field_name('numposts'); ?>" type="text" value="<?php echo $instance['numposts']; ?>" /></p>
-			
-			<p>
-            <p><label for="<?php echo $this->get_field_id('numexcerpts'); ?>"><?php _e('Number of excerpts to show:'); ?></label> 
-				<input class="widefat" id="<?php echo $this->get_field_id('numexcerpts'); ?>" name="<?php echo $this->get_field_name('numexcerpts'); ?>" type="text" value="<?php echo $instance['numexcerpts']; ?>" /></p>
-			
-			<p>
-                <label for="<?php echo $this->get_field_id('more_text'); ?>"><?php _e('\'More\' link text:'); ?></label>
-                <input class="widefat" id="<?php echo $this->get_field_id('more_text'); ?>" name="<?php echo $this->get_field_name('more_text'); ?>" type="text" value="<?php echo $instance['more_text']; ?>" />
-                <br /><small>Leave blank to omit 'more' link</small>
-			</p>
-            <p><label for="<?php echo $this->get_field_id('cat'); ?>"><?php _e("Limit to category: "); ?>
-    		<?php wp_dropdown_categories(array('name' => $this->get_field_name('cat'), 'show_option_all' => __('None (all categories)'), 'hide_empty'=>0, 'hierarchical'=>1, 'selected'=>$instance['cat'])); ?></label></p>
-			<?php
-			if (function_exists('the_excerpt_reloaded')) { ?>
-				<p>
-				<label for="<?php echo $this->get_field_id('words'); ?>">Limit excerpt to how many words?:</label>
-				<input class="widefat" id="<?php echo $this->get_field_id('words'); ?>" name="<?php echo $this->get_field_name('words'); ?>" type="text" value="<?php echo $instance['words']; ?>" />
-				</p>
-				<p>
-				<label for="<?php echo $this->get_field_id('tags'); ?>">Allowed HTML tags:</label>
-				<input class="widefat" id="<?php echo $this->get_field_id('tags'); ?>" name="<?php echo $this->get_field_name('tags'); ?>" type="text" value="<?php echo htmlspecialchars($instance['tags'], ENT_QUOTES); ?>" />
-				<br /><small>E.g.: &lt;p&gt;&lt;div&gt;&lt;span&gt;&lt;br&gt;&lt;img&gt;&lt;a&gt;&lt;ul&gt;&lt;ol&gt;&lt;li&gt;&lt;blockquote&gt;&lt;cite&gt;&lt;em&gt;&lt;i&gt;&lt;strong&gt;&lt;b&gt;&lt;h2&gt;&lt;h3&gt;&lt;h4&gt;&lt;h5&gt;&lt;h6&gt;
-				</small></p>
+        <p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label> 
+        <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $instance['title']; ?>" /></p>
+        
+        <p>
+        <p>
+        <label for="<?php echo $this->get_field_id('postlink'); ?>"><?php _e('Link widget title to blog home page?'); ?></label>
+        <input class="widefat" id="<?php echo $this->get_field_id('postlink'); ?>" name="<?php echo $this->get_field_name('postlink'); ?>" type="checkbox" <?php if ($instance['postlink']) { ?> checked="checked" <?php } ?> />
+        </p>
+        <p><label for="<?php echo $this->get_field_id('numposts'); ?>"><?php _e('Number of posts to show:'); ?></label> 
+        <input class="widefat" id="<?php echo $this->get_field_id('numposts'); ?>" name="<?php echo $this->get_field_name('numposts'); ?>" type="text" value="<?php echo $instance['numposts']; ?>" /></p>
+        
+        <p>
+        <p><label for="<?php echo $this->get_field_id('numexcerpts'); ?>"><?php _e('Number of excerpts to show:'); ?></label> 
+        <input class="widefat" id="<?php echo $this->get_field_id('numexcerpts'); ?>" name="<?php echo $this->get_field_name('numexcerpts'); ?>" type="text" value="<?php echo $instance['numexcerpts']; ?>" /></p>
+        
+        <p>
+        <label for="<?php echo $this->get_field_id('more_text'); ?>"><?php _e('\'More\' link text:'); ?></label>
+        <input class="widefat" id="<?php echo $this->get_field_id('more_text'); ?>" name="<?php echo $this->get_field_name('more_text'); ?>" type="text" value="<?php echo $instance['more_text']; ?>" />
+        <br /><small><?php _e('Leave blank to omit \'more\' link'); ?></small>
+        </p>
+        <p><label for="<?php echo $this->get_field_id('cat'); ?>"><?php _e('Limit to category: '); ?>
+        <?php wp_dropdown_categories(array('name' => $this->get_field_name('cat'), 'show_option_all' => __('None (all categories)'), 'hide_empty'=>0, 'hierarchical'=>1, 'selected'=>$instance['cat'])); ?></label></p>
+        <p>
+        <label for="<?php echo $this->get_field_id('tag'); ?>"><?php _e('Limit to tags:'); ?></label>
+        <input class="widefat" id="<?php echo $this->get_field_id('tag'); ?>" name="<?php echo $this->get_field_name('tag'); ?>" type="text" value="<?php echo $instance['tag']; ?>" />
+        <br /><small><?php _e('Enter post tags separated by commas (\'cat,dog\')'); ?></small>
+        </p>
+        <?php
+        if (function_exists('the_excerpt_reloaded')) { ?>
+        <p>
+        <label for="<?php echo $this->get_field_id('words'); ?>"><?php _e('Limit excerpt to how many words?'); ?></label>
+        <input class="widefat" id="<?php echo $this->get_field_id('words'); ?>" name="<?php echo $this->get_field_name('words'); ?>" type="text" value="<?php echo $instance['words']; ?>" />
+        </p>
+        <p>
+        <label for="<?php echo $this->get_field_id('tags'); ?>"><?php _e('Allowed HTML tags:'); ?></label>
+        <input class="widefat" id="<?php echo $this->get_field_id('tags'); ?>" name="<?php echo $this->get_field_name('tags'); ?>" type="text" value="<?php echo htmlspecialchars($instance['tags'], ENT_QUOTES); ?>" />
+        <br /><small><?php _e('E.g.: &lt;p&gt;&lt;div&gt;&lt;span&gt;&lt;br&gt;&lt;img&gt;&lt;a&gt;&lt;ul&gt;&lt;ol&gt;&lt;li&gt;&lt;blockquote&gt;&lt;cite&gt;&lt;em&gt;&lt;i&gt;&lt;strong&gt;&lt;b&gt;&lt;h2&gt;&lt;h3&gt;&lt;h4&gt;&lt;h5&gt;&lt;h6&gt;'); ?>
+        </small></p>
 			<?php } 
 	}
 }
