@@ -2,8 +2,8 @@
 Contributors: sillybean
 Tags: widgets, excerpts
 Requires at least: 2.8
-Tested up to: 2.8.2
-Stable tag: 2.0
+Tested up to: 3.0.1
+Stable tag: 2.1
 
 
 A widget that lists your most recent posts with optional excerpts.   
@@ -23,6 +23,9 @@ Tip: to style your excerpts, add a declaration for `.recent_with_excerpt li bloc
 
 == Changelog ==
 
+= 2.1 =
+* Added tag limit option
+* All widget input fields are now localized (September 11, 2009)
 = 2.0 =
 * Added widget title option
 * had to jump version numbers (did the earlier ones wrong, apparently) (August 3, 2009)
