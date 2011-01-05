@@ -2,7 +2,7 @@
 Contributors: sillybean
 Tags: widgets, excerpts
 Requires at least: 2.8
-Tested up to: 3.0
+Tested up to: 3.1
 Stable tag: 2.2
 
 
@@ -20,6 +20,10 @@ A widget that lists your most recent posts with excerpts, optionally limited to 
 Go to Appearance &rarr; Widgets to add widgets to your sidebar in widget-ready themes.
 
 Tip: to style your excerpts, add a declaration for `.recent_with_excerpt li blockquote` to your theme's stylesheet.
+
+== Translations ==
+
+If you would like to send me a translation, please write to me through <a href="http://sillybean.net/about/contact/">my contact page</a>. Let me know which plugin you've translated and how you would like to be credited. I will write you back so you can attach the files in your reply.
 
 == Changelog ==
 
