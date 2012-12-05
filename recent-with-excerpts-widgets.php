@@ -44,7 +44,7 @@ class RecentPostsWithExcerpts extends WP_Widget {
 						$link = get_permalink(get_option('page_for_posts'));
 					else $link = get_permalink(get_option('home'));
 					$before_title .= '<a href="'.$link.'">';
-					$after_title .= '</a>';
+					$after_title = '</a>' . $after_title;
 				}
 				echo $before_title.$title.$after_title;
 			}
