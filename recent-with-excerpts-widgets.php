@@ -3,7 +3,7 @@
 Plugin Name: Recent Posts with Excerpts
 Plugin URI: http://stephanieleary.com/code/wordpress/recent-posts-with-excerpts/
 Description: A widget that lists your most recent posts with excerpts. The number of posts and excerpts is configurable; for example, you could show five posts but include the excerpt for only the most recent. Supports <a href="http://robsnotebook.com/the-excerpt-reloaded/">The Excerpt Reloaded</a> and <a href="http://sparepencil.com/code/advanced-excerpt/">Advanced Excerpt</a>.
-Version: 2.3
+Version: 2.3.1
 Author: Stephanie Leary
 Author URI: http://stephanieleary.com
 
@@ -44,7 +44,7 @@ class RecentPostsWithExcerpts extends WP_Widget {
 						$link = get_permalink(get_option('page_for_posts'));
 					else $link = get_permalink(get_option('home'));
 					$before_title .= '<a href="'.$link.'">';
-					$after_title = '</a>' . $after_title;
+					$after_title .= '</a>';
 				}
 				echo $before_title.$title.$after_title;
 			}
@@ -70,16 +70,13 @@ class RecentPostsWithExcerpts extends WP_Widget {
 				<?php if (!empty($date)) { ?> <h3 class="date"><?php echo the_time($date); ?></h3> <?php } ?>
                 <?php
                 if ($excerpts > 0) { // show the excerpt ?>
-                    <?php 
+                    <blockquote> <?php 
                     // the excerpt of the post
                     if (function_exists('the_excerpt_reloaded')) 
                         the_excerpt_reloaded($instance['words'], $instance['tags'], 'content', FALSE, '', '', '1', '');
-                    else { 
-						//the_excerpt();  // this covers Advanced Excerpt as well as the built-in one
-						the_content('Continue Reading...');
-					}
-                    ?>
-                    <?php 
+                    else the_excerpt();  // this covers Advanced Excerpt as well as the built-in one
+                    if (!empty($instance['more_text'])) { ?><p class="alignright"><small><a href="<?php the_permalink(); ?>"><?php echo $instance['more_text']; } ?></a></small></p>
+                    </blockquote> <?php
                     $excerpts--;
 		        }?></li>
 			<?php endwhile; endif; ?>
@@ -95,6 +92,7 @@ class RecentPostsWithExcerpts extends WP_Widget {
 			$instance['title'] = strip_tags($new_instance['title']);
 			$instance['numposts'] = $new_instance['numposts'];
 			$instance['numexcerpts'] = $new_instance['numexcerpts'];
+			$instance['more_text'] = strip_tags($new_instance['more_text']);
 			$instance['date'] = strip_tags($new_instance['date']);
 			$instance['words'] = strip_tags($new_instance['words']);
 			$instance['tags'] = $new_instance['tags'];
@@ -114,6 +112,7 @@ class RecentPostsWithExcerpts extends WP_Widget {
 						'numposts' => 5,
 						'numexcerpts' => 5,
 						'date' => get_option('date_format'),
+						'more_text' => 'more...',
 						'words' => '55',
 						'tags' => '<p><div><span><br><img><a><ul><ol><li><blockquote><cite><em><i><strong><b><h2><h3><h4><h5><h6>',
 						'cat' => 0,
@@ -136,6 +135,12 @@ class RecentPostsWithExcerpts extends WP_Widget {
         <p><label for="<?php echo $this->get_field_id('numexcerpts'); ?>"><?php _e('Number of excerpts to show:'); ?></label> 
         <input class="widefat" id="<?php echo $this->get_field_id('numexcerpts'); ?>" name="<?php echo $this->get_field_name('numexcerpts'); ?>" type="text" value="<?php echo $instance['numexcerpts']; ?>" /></p>
         
+        <p>
+        <label for="<?php echo $this->get_field_id('more_text'); ?>"><?php _e('\'More\' link text:'); ?></label>
+        <input class="widefat" id="<?php echo $this->get_field_id('more_text'); ?>" name="<?php echo $this->get_field_name('more_text'); ?>" type="text" value="<?php echo $instance['more_text']; ?>" />
+        <br /><small><?php _e('Leave blank to omit \'more\' link'); ?></small>
+        </p>
+
         <p>
         <label for="<?php echo $this->get_field_id('date'); ?>"><?php _e('Date format:'); ?></label>
         <input class="widefat" id="<?php echo $this->get_field_id('date'); ?>" name="<?php echo $this->get_field_name('date'); ?>" type="text" value="<?php echo $instance['date']; ?>" />
