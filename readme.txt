@@ -3,7 +3,7 @@ Contributors: sillybean
 Tags: widgets, excerpts
 Requires at least: 2.8
 Tested up to: 3.5
-Stable tag: 2.3.1
+Stable tag: 2.3.2
 
 
 A widget that lists your most recent posts with optional excerpts.   
@@ -27,6 +27,8 @@ If you would like to send me a translation, please write to me through <a href="
 
 == Changelog ==
 
+= 2.3.2 =
+* Fixed a bug in which limiting the posts to a category and/or tag would override the setting for the number of posts to display.
 = 2.3.1 =
 * Fixing bugs and restoring "more" option broken in 2.3.
 = 2.3 =
