@@ -3,7 +3,7 @@
 Plugin Name: Recent Posts with Excerpts
 Plugin URI: http://stephanieleary.com/code/wordpress/recent-posts-with-excerpts/
 Description: A widget that lists your most recent posts with excerpts. The number of posts and excerpts is configurable; for example, you could show five posts but include the excerpt for only the most recent. Supports <a href="http://robsnotebook.com/the-excerpt-reloaded/">The Excerpt Reloaded</a> and <a href="http://sparepencil.com/code/advanced-excerpt/">Advanced Excerpt</a>.
-Version: 2.3.2
+Version: 2.4
 Author: Stephanie Leary
 Author URI: http://stephanieleary.com
 
@@ -23,6 +23,7 @@ Copyright 2009  Stephanie Leary  (email : steph@sillybean.net)
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
 
 class RecentPostsWithExcerpts extends WP_Widget {
 
@@ -67,11 +68,17 @@ class RecentPostsWithExcerpts extends WP_Widget {
 			// the Loop
 			if ($rpwe->have_posts()) :
 			while ($rpwe->have_posts()) : $rpwe->the_post(); 
-				echo '<li class="'.$li_classes.'">'; ?>
+				echo '<li class="'.$li_classes.'">'; 
+				if ($excerpts > 0 && $instance['thumb'] && $instance['thumbposition'] == 'above')
+					echo '<a href="'.get_permalink().'">'. get_the_post_thumbnail( get_the_id(), $instance['thumbsize']) .'</a>';
+				?>
                 <h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
 				<?php if (!empty($date)) { ?> <h3 class="date"><?php echo the_time($date); ?></h3> <?php } ?>
                 <?php
-                if ($excerpts > 0) { // show the excerpt ?>
+                if ($excerpts > 0) { // show the excerpt 
+					if ($instance['thumb'] && $instance['thumbposition'] == 'between')
+						echo '<a href="'.get_permalink().'">'. get_the_post_thumbnail( get_the_id(), $instance['thumbsize']) .'</a>';
+					?>
                     <blockquote> <?php 
                     // the excerpt of the post
                     if (function_exists('the_excerpt_reloaded')) 
@@ -79,6 +86,10 @@ class RecentPostsWithExcerpts extends WP_Widget {
                     else the_excerpt();  // this covers Advanced Excerpt as well as the built-in one
                     if (!empty($instance['more_text'])) { ?><p class="alignright"><small><a href="<?php the_permalink(); ?>"><?php echo $instance['more_text']; } ?></a></small></p>
                     </blockquote> <?php
+
+					if ($excerpts > 0 && $instance['thumb'] && $instance['thumbposition'] == 'below')
+						echo '<a href="'.get_permalink().'">'. get_the_post_thumbnail( get_the_id(), $instance['thumbsize']) .'</a>';
+						
                     $excerpts--;
 		        }?></li>
 			<?php endwhile; endif; ?>
@@ -92,15 +103,18 @@ class RecentPostsWithExcerpts extends WP_Widget {
 	function update( $new_instance, $old_instance ) {
 			$instance = $old_instance;
 			$instance['title'] = strip_tags($new_instance['title']);
-			$instance['numposts'] = $new_instance['numposts'];
-			$instance['numexcerpts'] = $new_instance['numexcerpts'];
+			$instance['numposts'] = intval($new_instance['numposts']);
+			$instance['numexcerpts'] = intval($new_instance['numexcerpts']);
 			$instance['more_text'] = strip_tags($new_instance['more_text']);
 			$instance['date'] = strip_tags($new_instance['date']);
-			$instance['words'] = strip_tags($new_instance['words']);
+			$instance['words'] = intval($new_instance['words']);
 			$instance['tags'] = $new_instance['tags'];
-			$instance['cat'] = $new_instance['cat'];
-			$instance['tag'] = $new_instance['tag'];
+			$instance['cat'] = intval($new_instance['cat']);
+			$instance['tag'] = strip_tags($new_instance['tag']);
 			$instance['postlink'] = $new_instance['postlink'];
+			$instance['thumb'] = intval($new_instance['thumb']);
+			$instance['thumbposition'] = esc_html($new_instance['thumbposition']);
+			$instance['thumbsize'] = esc_attr($new_instance['thumbsize']);
 			return $instance;
 	}
 
@@ -119,16 +133,19 @@ class RecentPostsWithExcerpts extends WP_Widget {
 						'tags' => '<p><div><span><br><img><a><ul><ol><li><blockquote><cite><em><i><strong><b><h2><h3><h4><h5><h6>',
 						'cat' => 0,
 						'tag' => '',
-						'postlink' => $link));	
+						'postlink' => $link,
+						'thumb' => 0,
+						'thumbposition' => 'above',
+						'thumbsize' => ''));	
 	?>  
        
         <p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label> 
         <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $instance['title']; ?>" /></p>
         
-        <p>
+        
         <p>
         <label for="<?php echo $this->get_field_id('postlink'); ?>"><?php _e('Link widget title to blog home page?'); ?></label>
-        <input class="widefat" id="<?php echo $this->get_field_id('postlink'); ?>" name="<?php echo $this->get_field_name('postlink'); ?>" type="checkbox" <?php if ($instance['postlink']) { ?> checked="checked" <?php } ?> />
+        <input id="<?php echo $this->get_field_id('postlink'); ?>" name="<?php echo $this->get_field_name('postlink'); ?>" type="checkbox" <?php if ($instance['postlink']) { ?> checked="checked" <?php } ?> />
         </p>
         <p><label for="<?php echo $this->get_field_id('numposts'); ?>"><?php _e('Number of posts to show:'); ?></label> 
         <input class="widefat" id="<?php echo $this->get_field_id('numposts'); ?>" name="<?php echo $this->get_field_name('numposts'); ?>" type="text" value="<?php echo $instance['numposts']; ?>" /></p>
@@ -148,6 +165,7 @@ class RecentPostsWithExcerpts extends WP_Widget {
         <input class="widefat" id="<?php echo $this->get_field_id('date'); ?>" name="<?php echo $this->get_field_name('date'); ?>" type="text" value="<?php echo $instance['date']; ?>" />
         <br /><small><?php _e('Leave blank to omit the date'); ?></small>
         </p>
+
         <p><label for="<?php echo $this->get_field_id('cat'); ?>"><?php _e('Limit to category: '); ?>
         <?php wp_dropdown_categories(array('name' => $this->get_field_name('cat'), 'show_option_all' => __('None (all categories)'), 'hide_empty'=>0, 'hierarchical'=>1, 'selected'=>$instance['cat'])); ?></label></p>
         <p>
@@ -166,7 +184,33 @@ class RecentPostsWithExcerpts extends WP_Widget {
         <input class="widefat" id="<?php echo $this->get_field_id('tags'); ?>" name="<?php echo $this->get_field_name('tags'); ?>" type="text" value="<?php echo htmlspecialchars($instance['tags'], ENT_QUOTES); ?>" />
         <br /><small><?php _e('E.g.: &lt;p&gt;&lt;div&gt;&lt;span&gt;&lt;br&gt;&lt;img&gt;&lt;a&gt;&lt;ul&gt;&lt;ol&gt;&lt;li&gt;&lt;blockquote&gt;&lt;cite&gt;&lt;em&gt;&lt;i&gt;&lt;strong&gt;&lt;b&gt;&lt;h2&gt;&lt;h3&gt;&lt;h4&gt;&lt;h5&gt;&lt;h6&gt;'); ?>
         </small></p>
-			<?php } 
+			<?php } ?>
+		<p>
+        <label for="<?php echo $this->get_field_id('thumb'); ?>"><?php _e('Show featured images in excerpts?'); ?></label>
+        <input id="<?php echo $this->get_field_id('thumb'); ?>" name="<?php echo $this->get_field_name('thumb'); ?>" type="checkbox" value="1" <?php checked($instance['thumb'], '1'); ?> />
+        </p>
+
+		<p><label for="<?php echo $this->get_field_id('thumbposition'); ?>"><?php _e('Featured image position:'); ?></label> 
+			<select id="<?php echo $this->get_field_id('thumbposition'); ?>" name="<?php echo $this->get_field_name('thumbposition'); ?>">
+				<option value="above" <?php selected('above', $instance['thumbposition']) ?>><?php _e('Above title'); ?></option>
+				<option value="between" <?php selected('between', $instance['thumbposition']) ?>><?php _e('Between title and excerpt'); ?></option>
+				<option value="below" <?php selected('below', $instance['thumbposition']) ?>><?php _e('Below excerpt'); ?></option>
+			</select>
+		</p>
+
+		<p><label for="<?php echo $this->get_field_id('thumbsize'); ?>"><?php _e('Featured image size:'); ?></label> <br />
+			<select id="<?php echo $this->get_field_id('thumbsize'); ?>" name="<?php echo $this->get_field_name('thumbsize'); ?>">
+				<option value=""<?php selected( $instance['thumbsize'], '' ); ?>>&nbsp;</option>
+				<?php
+				global $_wp_additional_image_sizes;
+
+				foreach( $_wp_additional_image_sizes as $size_key => $size_info ) { ?>
+					<option value="<?php echo esc_attr($size_key); ?>"<?php selected( $instance['thumbsize'], $size_key ); ?>><?php echo esc_html($size_key); ?></option>
+				<?php } ?>
+			</select>
+		</p>
+	
+		<?php	
 	}
 }
 
@@ -175,4 +219,3 @@ function recent_posts_with_excerpts_init() {
 }
 
 add_action('widgets_init', 'recent_posts_with_excerpts_init');
-?>
