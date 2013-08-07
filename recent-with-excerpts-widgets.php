@@ -2,8 +2,9 @@
 /*
 Plugin Name: Recent Posts with Excerpts
 Plugin URI: http://stephanieleary.com/code/wordpress/recent-posts-with-excerpts/
+Donate link: http://stephanieleary.com/code/wordpress/recent-posts-with-excerpts/
 Description: A widget that lists your most recent posts with excerpts. The number of posts and excerpts is configurable; for example, you could show five posts but include the excerpt for only the most recent. Supports <a href="http://robsnotebook.com/the-excerpt-reloaded/">The Excerpt Reloaded</a> and <a href="http://sparepencil.com/code/advanced-excerpt/">Advanced Excerpt</a>.
-Version: 2.4
+Version: 2.5
 Author: Stephanie Leary
 Author URI: http://stephanieleary.com
 
@@ -52,10 +53,21 @@ class RecentPostsWithExcerpts extends WP_Widget {
 				echo $before_title.$title.$after_title;
 			}
 			
-			$ul_classes = apply_filters('recent_posts_with_excerpts_list_classes', '');
-			$li_classes = apply_filters('recent_posts_with_excerpts_item_classes', '');
+			$ul_classes = 'recent_posts_with_excerpts';
+			$ul_classes = apply_filters('recent_posts_with_excerpts_list_classes', $ul_classes);
+			if ( !empty( $ul_classes ) )
+				$ul_classes = ' class="'.$ul_classes.'"';
+			$li_classes = '';
+			$li_classes = apply_filters('recent_posts_with_excerpts_item_classes', $li_classes);
+			if ( !empty( $li_classes ) )
+				$li_classes = ' class="'.$li_classes.'"';
+			$h2_classes = 'recent_posts_with_excerpts';
+			$h2_classes = apply_filters('recent_posts_with_excerpts_heading_classes', $h2_classes);
+			if ( !empty( $h2_classes ) )
+				$h2_classes = ' class="'.$h2_classes.'"';
 			
-			echo '<ul class="'.$ul_classes.'">';
+			do_action('recent_posts_with_excerpts_begin');
+			echo '<ul'.$ul_classes.'>';
 			
 			// retrieve last n blog posts
 			$q = array('posts_per_page' => $instance['numposts']);
@@ -70,13 +82,15 @@ class RecentPostsWithExcerpts extends WP_Widget {
 			// the Loop
 			if ($rpwe->have_posts()) :
 			while ($rpwe->have_posts()) : $rpwe->the_post(); 
-				echo '<li class="'.$li_classes.'">'; 
+				echo '<li'.$li_classes.'>'; 
 				if ($excerpts > 0 && $instance['thumb'] && $instance['thumbposition'] == 'above')
 					echo '<a href="'.get_permalink().'">'. get_the_post_thumbnail( get_the_id(), $instance['thumbsize']) .'</a>';
-				?>
-                <h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
-				<?php if (!empty($date)) { ?> <h3 class="date"><?php echo the_time($date); ?></h3> <?php } ?>
-                <?php
+				
+                echo '<h2'.$h2_classes.'><a href="'.get_permalink().'">'.get_the_title().'</a></h2>';
+				
+				if (!empty($date)) 
+					echo '<h3 class="date">'.the_time($date).'</h3>';
+                
                 if ($excerpts > 0) { // show the excerpt 
 					if ($instance['thumb'] && $instance['thumbposition'] == 'between')
 						echo '<a href="'.get_permalink().'">'. get_the_post_thumbnail( get_the_id(), $instance['thumbsize']) .'</a>';
@@ -97,6 +111,7 @@ class RecentPostsWithExcerpts extends WP_Widget {
 			<?php endwhile; endif; ?>
 			</ul>
 			<?php
+			do_action('recent_posts_with_excerpts_end');
 			echo $after_widget;
 			wp_reset_query();
 	}
@@ -138,7 +153,8 @@ class RecentPostsWithExcerpts extends WP_Widget {
 						'postlink' => $link,
 						'thumb' => 0,
 						'thumbposition' => 'above',
-						'thumbsize' => ''));	
+						'thumbsize' => ''));
+			
 	?>  
        
         <p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:', 'recent_posts_with_excerpts'); ?></label> 
@@ -202,19 +218,30 @@ class RecentPostsWithExcerpts extends WP_Widget {
 				<option value="below" <?php selected('below', $instance['thumbposition']) ?>><?php _e('Below excerpt', 'recent_posts_with_excerpts'); ?></option>
 			</select>
 		</p>
-
+		
 		<p><label for="<?php echo $this->get_field_id('thumbsize'); ?>"><?php _e('Featured image size:', 'recent_posts_with_excerpts'); ?></label> <br />
 			<select id="<?php echo $this->get_field_id('thumbsize'); ?>" name="<?php echo $this->get_field_name('thumbsize'); ?>">
 				<option value=""<?php selected( $instance['thumbsize'], '' ); ?>>&nbsp;</option>
 				<?php
 				global $_wp_additional_image_sizes;
+		     	$sizes = array();
+		 		foreach( get_intermediate_image_sizes() as $s ){
+		 			//$sizes[ $s ] = array( 0, 0 );
+		 			if( in_array( $s, array( 'thumbnail', 'medium', 'large' ) ) ){
+		 				$sizes[ $s ][0] = get_option( $s . '_size_w' );
+		 				$sizes[ $s ][1] = get_option( $s . '_size_h' );
+		 			}else{
+		 				if( isset( $_wp_additional_image_sizes ) && isset( $_wp_additional_image_sizes[ $s ] ) )
+		 					$sizes[ $s ] = array( $_wp_additional_image_sizes[ $s ]['width'], $_wp_additional_image_sizes[ $s ]['height'], );
+		 			}
+		 		}
 
-				foreach( $_wp_additional_image_sizes as $size_key => $size_info ) { ?>
-					<option value="<?php echo esc_attr($size_key); ?>"<?php selected( $instance['thumbsize'], $size_key ); ?>><?php echo esc_html($size_key); ?></option>
-				<?php } ?>
+		 		foreach( $sizes as $size => $atts ){
+		 			echo '<option value="'.$size.'" '. selected( $size, $instance['thumbsize'], false ).'>' . $size . ' (' . implode( 'x', $atts ) . ')</option>';
+		 		}
+				?>
 			</select>
 		</p>
-	
 		<?php	
 	}
 }
