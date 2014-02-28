@@ -6,7 +6,7 @@ Text Domain: recent_posts_with_excerpts
 Domain Path: /languages
 Requires at least: 2.8
 Tested up to: 3.8.1
-Stable tag: 2.5.2
+Stable tag: 2.5.3
 
 
 A widget that lists your most recent posts with optional excerpts.   
@@ -45,6 +45,8 @@ If you would like to send me a translation, please write to me through <a href="
 
 == Changelog ==
 
+= 2.5.3 =
+* Added POT file.
 = 2.5.2 =
 * Added 'recent_posts_with_excerpts_query' filter to allow modifications to the widget's query.
 = 2.5.1 =
