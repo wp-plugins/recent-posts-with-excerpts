@@ -5,7 +5,7 @@ Donate link: http://stephanieleary.com/code/wordpress/recent-posts-with-excerpts
 Text Domain: recent_posts_with_excerpts
 Domain Path: /languages
 Requires at least: 2.8
-Tested up to: 3.8.1
+Tested up to: 4.1
 Stable tag: 2.5.4
 
 
